@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "tsnd --transpile-only --respawn --ignore-watch node_modules src/loader"
+    "dev": "tsnd --transpile-only --respawn --ignore-watch node_modules src/loader",
+    "start": "node dist/loader.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.12",
