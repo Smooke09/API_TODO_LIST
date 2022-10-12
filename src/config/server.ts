@@ -35,20 +35,40 @@ server.get(
 
     try {
       const data = await prisma.users
-        .findUnique({
+        .findMany({
           where: {
             user_id: parseInt(id),
           },
+
           select: {
             user_id: true,
             username: true,
             email: true,
-            tasks_tasks_user_idTousers: true, // Pegando referencia da chave estrangeira
+            tasks_tasks_user_idTousers: {
+              orderBy: {
+                task_id: "asc",
+              },
+            },
           },
         })
         .catch((err: any) => {
           next(err);
         });
+
+      // const data = await prisma.users
+      //   .findUnique({
+      //     where: {
+      //       user_id: parseInt(id),
+      //     },
+      //     select: {
+      //       user_id: true,
+      //       username: true,
+      //       email: true,
+      //       tasks_tasks_user_idTousers: true,
+      //       // Pegando referencia da chave estrangeira
+      //     },
+      //   })
+
       res.status(200).json(data);
     } catch (error) {
       console.log(error);
@@ -90,7 +110,7 @@ server.post("/create", async (req: Request, res: Response) => {
       .catch((error: any) => {
         res.status(500).json({
           message: "Erro ao criar task!",
-          error: error,
+          error: error.message,
         });
       });
 
@@ -119,8 +139,8 @@ server.post(
 
       const newUser = await prisma.users.create({
         data: {
-          username: username,
-          email: email,
+          username,
+          email,
           password: newPass,
         },
       });
@@ -209,6 +229,7 @@ server.delete("/deletar/:id", async (req: Request, res: Response) => {
   }
 });
 
+// Login
 server.post(
   "/login",
   async (req: Request, res: Response, next: NextFunction) => {

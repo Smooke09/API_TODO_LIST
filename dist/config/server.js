@@ -27,7 +27,7 @@ server.get("/consultar/:id", async (req, res, next) => {
     const id = req.params.id;
     try {
         const data = await prisma_1.default.users
-            .findUnique({
+            .findMany({
             where: {
                 user_id: parseInt(id),
             },
@@ -35,12 +35,29 @@ server.get("/consultar/:id", async (req, res, next) => {
                 user_id: true,
                 username: true,
                 email: true,
-                tasks_tasks_user_idTousers: true, // Pegando referencia da chave estrangeira
+                tasks_tasks_user_idTousers: {
+                    orderBy: {
+                        task_id: "asc",
+                    },
+                },
             },
         })
             .catch((err) => {
             next(err);
         });
+        // const data = await prisma.users
+        //   .findUnique({
+        //     where: {
+        //       user_id: parseInt(id),
+        //     },
+        //     select: {
+        //       user_id: true,
+        //       username: true,
+        //       email: true,
+        //       tasks_tasks_user_idTousers: true,
+        //       // Pegando referencia da chave estrangeira
+        //     },
+        //   })
         res.status(200).json(data);
     }
     catch (error) {
@@ -77,7 +94,7 @@ server.post("/create", async (req, res) => {
             .catch((error) => {
             res.status(500).json({
                 message: "Erro ao criar task!",
-                error: error,
+                error: error.message,
             });
         });
         res.status(200).json({
@@ -100,8 +117,8 @@ server.post("/create/user", async (req, res, next) => {
         const newPass = await (0, bcryptConfig_1.default)(password);
         const newUser = await prisma_1.default.users.create({
             data: {
-                username: username,
-                email: email,
+                username,
+                email,
                 password: newPass,
             },
         });
@@ -181,6 +198,7 @@ server.delete("/deletar/:id", async (req, res) => {
         console.log(err.message);
     }
 });
+// Login
 server.post("/login", async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
